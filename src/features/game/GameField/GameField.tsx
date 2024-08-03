@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './GameField.module.scss';
 import cn from 'classnames';
 
@@ -90,6 +90,14 @@ export const GameField = () => {
   const [pieces, setPieces] = useState<Piece[]>(initialPieces);
   const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
   const [possibleMoves, setPossibleMoves] = useState<CellAddress[]>([]);
+
+  // Проверка на победу
+  useEffect(() => {
+    const allFinished = pieces.every(piece => piece.finished);
+    if (allFinished) {
+      console.log("Поздравляем! Все фишки достигли конца.");
+    }
+  }, [pieces]);
 
   const handleCellClick = (address: CellAddress) => {
     const clickedPiece = pieces.find(piece => piece.position === address);
