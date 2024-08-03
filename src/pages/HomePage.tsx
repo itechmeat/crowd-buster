@@ -1,4 +1,4 @@
-import { GameField } from "../features/game/GameField/GameField"
+import { GameField } from "../components/GameField/GameField"
 
 export const HomePage = () => {
   return (
