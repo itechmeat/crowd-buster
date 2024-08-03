@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Cell } from '../Cell/Cell';
 import { Timer } from '../Timer/Timer';
-import { CellAddress, Piece, PieceState } from '../../types/game';
+import { CellAddress, Piece, PieceState, Player } from '../../types/game';
 import { generateCellAddresses, calculatePossibleMoves } from '../../utils/gameLogic';
+import { generateCrowd, moveCrowdPieces } from '../../utils/crowdGenerator';
 import { INITIAL_PIECES, TURN_DURATION } from '../../constants/gameConstants';
 import styles from './GameField.module.scss';
+
+const CROWD_SIZE = 99;
 
 export const GameField: React.FC = () => {
   const cellAddresses = generateCellAddresses();
   const [pieces, setPieces] = useState<Piece[]>(INITIAL_PIECES);
+  const [crowd, setCrowd] = useState<Player[]>(generateCrowd(CROWD_SIZE));
   const [selectedPieceId, setSelectedPieceId] = useState<string | null>(null);
   const [possibleMoves, setPossibleMoves] = useState<CellAddress[]>([]);
   const [timeLeft, setTimeLeft] = useState(TURN_DURATION);
@@ -19,7 +23,6 @@ export const GameField: React.FC = () => {
     setPieces((prevPieces) => {
       const updatedPieces = [...prevPieces];
       
-      // Сначала обрабатываем все непередвинутые фишки
       const unmovedPieces = updatedPieces.filter(piece => !piece.moved && !piece.finished);
       
       for (const piece of unmovedPieces) {
@@ -42,6 +45,9 @@ export const GameField: React.FC = () => {
       
       return updatedPieces;
     });
+
+    // Перемещаем фишки ТОЛПЫ
+    setCrowd(prevCrowd => moveCrowdPieces(prevCrowd));
   }, []);
 
   useEffect(() => {
@@ -73,6 +79,12 @@ export const GameField: React.FC = () => {
           }
           return updatedPieces;
         });
+        setCrowd(prevCrowd => 
+          prevCrowd.map(player => ({
+            ...player,
+            pieces: player.pieces.map(piece => ({ ...piece, moved: false }))
+          }))
+        );
         setSelectedPieceId(null);
         setPossibleMoves([]);
         setTurnEnded(false);
@@ -159,16 +171,23 @@ export const GameField: React.FC = () => {
         <Timer timeLeft={timeLeft} />
       )}
       <div className={styles.gameBoard}>
-        {cellAddresses.map((address) => (
-          <Cell 
-            key={address} 
-            address={address}
-            piece={pieces.find(piece => piece.position === address) || null}
-            isHighlighted={possibleMoves.includes(address)}
-            pieceState={getPieceState(pieces.find(piece => piece.position === address) || null)}
-            onClick={() => handleCellClick(address)}
-          />
-        ))}
+        {cellAddresses.map((address) => {
+          const playerPiece = pieces.find(piece => piece.position === address);
+          const crowdPieces = crowd.flatMap(player => 
+            player.pieces.filter(piece => piece.position === address)
+          );
+          return (
+            <Cell 
+              key={address} 
+              address={address}
+              playerPiece={playerPiece || null}
+              crowdPieces={crowdPieces}
+              isHighlighted={possibleMoves.includes(address)}
+              pieceState={getPieceState(playerPiece || null)}
+              onClick={() => handleCellClick(address)}
+            />
+          );
+        })}
       </div>
     </div>
   );

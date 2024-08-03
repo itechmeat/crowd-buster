@@ -6,26 +6,44 @@ import styles from './Cell.module.scss';
 
 interface CellProps {
   address: CellAddress;
-  piece: Piece | null;
+  playerPiece: Piece | null;
+  crowdPieces: Piece[];
   isHighlighted: boolean;
   pieceState: PieceState;
   onClick: () => void;
 }
 
-export const Cell: React.FC<CellProps> = ({ address, piece, isHighlighted, pieceState, onClick }) => {
+export const Cell: React.FC<CellProps> = ({ 
+  address, 
+  playerPiece, 
+  crowdPieces, 
+  isHighlighted, 
+  pieceState, 
+  onClick 
+}) => {
   return (
     <div 
       className={cn(styles.cell, { [styles.highlighted]: isHighlighted })}
       onClick={onClick}
     >
       {address}
-      {piece && (
+      {playerPiece && (
         <Chip
-          id={piece.id}
+          id={playerPiece.id}
           pieceState={pieceState}
-          finished={piece.finished}
+          finished={playerPiece.finished}
+          isPlayer={true}
         />
       )}
+      {crowdPieces.map((piece) => (
+        <Chip
+          key={piece.id}
+          id={piece.id}
+          pieceState={PieceState.Moved}
+          finished={piece.finished}
+          isPlayer={false}
+        />
+      ))}
     </div>
   );
 };

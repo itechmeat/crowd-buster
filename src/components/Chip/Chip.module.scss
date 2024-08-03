@@ -28,4 +28,11 @@
     background-color: #555;
     cursor: not-allowed;
   }
+
+  &.crowd {
+    background-color: yellow;
+    color: black;
+    width: 60%;
+    height: 60%;
+  }
 }

@@ -7,6 +7,11 @@ export interface Piece {
   moved: boolean;
 }
 
+export interface Player {
+  id: string;
+  pieces: Piece[];
+}
+
 export enum PieceState {
   Initial,
   Selected,
