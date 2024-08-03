@@ -1,0 +1,31 @@
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  font-weight: bold;
+  color: white;
+
+  &.initial {
+    background-color: blue;
+  }
+
+  &.selected {
+    background-color: purple;
+  }
+
+  &.moved {
+    background-color: green;
+  }
+
+  &.finished {
+    background-color: #555;
+    cursor: not-allowed;
+  }
+}

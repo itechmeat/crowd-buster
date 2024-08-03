@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './GameField.module.scss';
+import styles from './Timer.module.scss';
 
 interface TimerProps {
   timeLeft: number;

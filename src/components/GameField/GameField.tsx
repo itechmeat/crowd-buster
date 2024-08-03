@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Cell } from './Cell';
-import { Timer } from './Timer';
+import { Cell } from '../Cell/Cell';
+import { Timer } from '../Timer/Timer';
 import { CellAddress, Piece, PieceState } from '../../types/game';
 import { generateCellAddresses, calculatePossibleMoves } from '../../utils/gameLogic';
 import { INITIAL_PIECES, TURN_DURATION } from '../../constants/gameConstants';
@@ -152,8 +152,12 @@ export const GameField: React.FC = () => {
   };
 
   return (
-    <div>
-      <Timer timeLeft={timeLeft} />
+    <div className={styles.gameContainer}>
+      {gameFinished ? (
+        <div className={styles.gameFinished}>Игра завершена! Все фишки достигли финиша.</div>
+      ) : (
+        <Timer timeLeft={timeLeft} />
+      )}
       <div className={styles.gameBoard}>
         {cellAddresses.map((address) => (
           <Cell 
