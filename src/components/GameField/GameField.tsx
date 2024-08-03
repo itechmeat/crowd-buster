@@ -45,8 +45,9 @@ export const GameField: React.FC = () => {
       
       return updatedPieces;
     });
+  }, []);
 
-    // Перемещаем фишки ТОЛПЫ
+  const moveCrowdPiecesCallback = useCallback(() => {
     setCrowd(prevCrowd => moveCrowdPieces(prevCrowd));
   }, []);
 
@@ -69,6 +70,8 @@ export const GameField: React.FC = () => {
   useEffect(() => {
     if (turnEnded && !gameFinished) {
       moveUnmovedPieces();
+      moveCrowdPiecesCallback();
+      
       setTimeout(() => {
         setTimeLeft(TURN_DURATION);
         setPieces((prevPieces) => {
@@ -90,7 +93,7 @@ export const GameField: React.FC = () => {
         setTurnEnded(false);
       }, 1000);
     }
-  }, [turnEnded, moveUnmovedPieces, gameFinished]);
+  }, [turnEnded, moveUnmovedPieces, moveCrowdPiecesCallback, gameFinished]);
 
   useEffect(() => {
     const allFinished = pieces.every(piece => piece.finished);
