@@ -45,3 +45,8 @@
 .chip.active {
   border: 2px solid #ffcc00; /* Визуальное выделение активной фишки */
 }
+
+.chip.finished {
+  background-color: #555; /* Стили для завершенных фишек */
+  cursor: not-allowed; /* Убираем возможность клика */
+}

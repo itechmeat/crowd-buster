@@ -7,12 +7,13 @@ type CellAddress = `${string}${number}`;
 interface Piece {
   id: string;
   position: CellAddress;
+  finished: boolean;
 }
 
 const initialPieces: Piece[] = [
-  { id: "X", position: "A3" },
-  { id: "Y", position: "A5" },
-  { id: "Z", position: "A7" },
+  { id: "X", position: "A3", finished: false },
+  { id: "Y", position: "A5", finished: false },
+  { id: "Z", position: "A7", finished: false },
 ];
 
 const generateCellAddresses = (): CellAddress[] => {
@@ -72,7 +73,14 @@ const Cell: React.FC<{
       onClick={onClick}
     >
       {address}
-      {piece && <div className={cn(styles.chip, { [styles.active]: isActive })}>{piece.id}</div>}
+      {piece && (
+        <div className={cn(styles.chip, { 
+          [styles.active]: isActive,
+          [styles.finished]: piece.finished 
+        })}>
+          {piece.id}
+        </div>
+      )}
     </div>
   );
 };
@@ -86,19 +94,25 @@ export const GameField = () => {
   const handleCellClick = (address: CellAddress) => {
     const clickedPiece = pieces.find(piece => piece.position === address);
 
-    if (selectedPieceId) {
+    if (clickedPiece && !clickedPiece.finished) {
+      // Если кликаем на другую фишку, она становится активной
+      setSelectedPieceId(clickedPiece.id);
+      setPossibleMoves(calculatePossibleMoves(clickedPiece.position, pieces));
+    } else if (selectedPieceId) {
       if (possibleMoves.includes(address)) {
         setPieces(prevPieces =>
-          prevPieces.map(piece =>
-            piece.id === selectedPieceId ? { ...piece, position: address } : piece
-          )
+          prevPieces.map(piece => {
+            if (piece.id === selectedPieceId) {
+              // Проверяем, достигла ли фишка ряда I
+              const isFinished = address.startsWith('I');
+              return { ...piece, position: address, finished: isFinished };
+            }
+            return piece;
+          })
         );
         setSelectedPieceId(null);
         setPossibleMoves([]);
       }
-    } else if (clickedPiece) {
-      setSelectedPieceId(clickedPiece.id);
-      setPossibleMoves(calculatePossibleMoves(clickedPiece.position, pieces));
     }
   };
 
