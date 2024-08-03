@@ -41,3 +41,7 @@
   border-radius: 50%;
   background-color: #000;
 }
+
+.chip.active {
+  border: 2px solid #ffcc00; /* Визуальное выделение активной фишки */
+}

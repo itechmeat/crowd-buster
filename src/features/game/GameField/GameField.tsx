@@ -29,7 +29,7 @@ const generateCellAddresses = (): CellAddress[] => {
   return addresses;
 };
 
-const calculatePossibleMoves = (position: CellAddress): CellAddress[] => {
+const calculatePossibleMoves = (position: CellAddress, pieces: Piece[]): CellAddress[] => {
   const row = position[0];
   const col = parseInt(position[1]);
   const rows = "ABCDEFGHI";
@@ -48,23 +48,31 @@ const calculatePossibleMoves = (position: CellAddress): CellAddress[] => {
   ];
 
   return potentialMoves
-    .filter(([r, c]) => r >= 0 && r < 9 && c >= 1 && c <= 9)
-    .map(([r, c]) => `${rows[r]}${c}` as CellAddress);
+    .filter(([r, c]) => r >= 0 && r < 9 && c >= 1 && c <= 9) // валидные позиции
+    .map(([r, c]) => `${rows[r]}${c}` as CellAddress)
+    .filter((move) => 
+      !pieces.some(piece => piece.position === move) // убираем занятые клетки
+    )
+    .filter((move) => {
+      const moveRowIndex = rows.indexOf(move[0]);
+      return moveRowIndex > rowIndex; // только вперед
+    });
 };
 
 const Cell: React.FC<{ 
   address: CellAddress;
   piece: Piece | null;
   isHighlighted: boolean;
+  isActive: boolean;
   onClick: () => void;
-}> = ({ address, piece, isHighlighted, onClick }) => {
+}> = ({ address, piece, isHighlighted, isActive, onClick }) => {
   return (
     <div 
       className={cn(styles.cell, { [styles.highlighted]: isHighlighted })}
       onClick={onClick}
     >
       {address}
-      {piece && <div className={cn(styles.chip)}>{piece.id}</div>}
+      {piece && <div className={cn(styles.chip, { [styles.active]: isActive })}>{piece.id}</div>}
     </div>
   );
 };
@@ -90,7 +98,7 @@ export const GameField = () => {
       }
     } else if (clickedPiece) {
       setSelectedPieceId(clickedPiece.id);
-      setPossibleMoves(calculatePossibleMoves(clickedPiece.position));
+      setPossibleMoves(calculatePossibleMoves(clickedPiece.position, pieces));
     }
   };
 
@@ -102,6 +110,7 @@ export const GameField = () => {
           address={address}
           piece={pieces.find(piece => piece.position === address) || null}
           isHighlighted={possibleMoves.includes(address)}
+          isActive={selectedPieceId === (pieces.find(piece => piece.position === address)?.id)}
           onClick={() => handleCellClick(address)}
         />
       ))}
